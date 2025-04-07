@@ -19,7 +19,8 @@ import com.odp.walled.model.Transaction;
 
 public class PdfGenerator {
 
-    public static ByteArrayInputStream generateTransactionHistory(List<Transaction> transactions) {
+    public static ByteArrayInputStream generateTransactionHistory(List<Transaction> transactions,
+            Long currentWalletId) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(out);
         PdfDocument pdf = new PdfDocument(writer);
@@ -55,25 +56,30 @@ public class PdfGenerator {
             String type = tx.getTransactionType().toString();
             String desc = tx.getDescription() == null ? "-" : tx.getDescription();
             String fromTo = "-";
+            String formattedAmount = "-";
 
-            if (tx.getTransactionType() == Transaction.TransactionType.TRANSFER) {
+            boolean isTransfer = tx.getTransactionType() == Transaction.TransactionType.TRANSFER;
+            boolean isTopUp = tx.getTransactionType() == Transaction.TransactionType.TOP_UP;
+
+            if (isTransfer) {
                 Long senderId = tx.getWallet().getId();
                 Long recipientId = tx.getRecipientWallet() != null ? tx.getRecipientWallet().getId() : null;
 
-                if (recipientId != null) {
-                    fromTo = "To: " + tx.getRecipientWallet().getAccountNumber();
-                } else {
-                    fromTo = "-";
+                // If the wallet that made the transaction is the sender
+                if (senderId.equals(currentWalletId)) {
+                    fromTo = "To: " + tx.getRecipientWallet().getUser().getUsername();
+                    formattedAmount = "- " + currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
+                } else if (recipientId != null && recipientId.equals(currentWalletId)) {
+                    // This is an incoming transfer
+                    fromTo = "From: " + tx.getWallet().getUser().getUsername();
+                    formattedAmount = "+ " + currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
                 }
-            }
-
-            if (tx.getTransactionType() == Transaction.TransactionType.TOP_UP) {
+            } else if (isTopUp) {
                 type = "Top-up";
-                fromTo = "-";
+                formattedAmount = "+ " + currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
+            } else {
+                formattedAmount = currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
             }
-
-            String formattedAmount = currencyFormat
-                    .format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
 
             table.addCell(date).setTextAlignment(TextAlignment.CENTER);
             table.addCell(type).setTextAlignment(TextAlignment.CENTER);

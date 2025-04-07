@@ -71,7 +71,7 @@ public class TransactionService {
     }
 
     public ByteArrayInputStream exportTransactionsAsPdf(Long walletId) {
-        List<Transaction> transactions = transactionRepository.findByWalletId(walletId);
-        return PdfGenerator.generateTransactionHistory(transactions);
+        List<Transaction> transactions = transactionRepository.findAllByWalletIdOrRecipientWalletId(walletId);
+        return PdfGenerator.generateTransactionHistory(transactions, walletId);
     }
 }
