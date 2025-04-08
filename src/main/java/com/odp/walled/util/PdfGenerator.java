@@ -15,16 +15,46 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.kernel.geom.PageSize;
 import com.odp.walled.model.Transaction;
+import com.odp.walled.model.Wallet;
+
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import java.io.InputStream;
 
 public class PdfGenerator {
 
     public static ByteArrayInputStream generateTransactionHistory(List<Transaction> transactions,
-            Long currentWalletId) {
+            Wallet wallet) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(out);
         PdfDocument pdf = new PdfDocument(writer);
-        Document document = new Document(pdf);
+        Document document = new Document(pdf, PageSize.A4);
+        Long currentWalletId = wallet.getId();
+
+        try {
+            InputStream imageStream = PdfGenerator.class.getClassLoader().getResourceAsStream("static/logo.png");
+            if (imageStream != null) {
+                byte[] imageBytes = imageStream.readAllBytes();
+                ImageData imageData = ImageDataFactory.create(imageBytes);
+                Image logo = new Image(imageData).scaleToFit(100, 100); // Resize logo
+                logo.setMarginBottom(10);
+                document.add(logo);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load logo image: " + e.getMessage());
+        }
+
+        Paragraph userInfo = new Paragraph(
+                "Account Info\n" +
+                        "Name: " + wallet.getUser().getFullname() + "\n" +
+                        "Email: " + wallet.getUser().getEmail() + "\n" +
+                        "Account Number: " + wallet.getAccountNumber())
+                .setFontSize(12)
+                .setMarginBottom(15);
+
+        document.add(userInfo);
 
         Paragraph title = new Paragraph("Transaction History")
                 .setFontSize(20)
@@ -89,6 +119,45 @@ public class PdfGenerator {
         }
 
         document.add(table);
+
+        // Calculate income, outcome, and net balance
+        java.math.BigDecimal totalIncome = java.math.BigDecimal.ZERO;
+        java.math.BigDecimal totalOutcome = java.math.BigDecimal.ZERO;
+
+        for (Transaction tx : transactions) {
+            if (tx.getTransactionType() == Transaction.TransactionType.TOP_UP ||
+                    (tx.getRecipientWallet() != null && tx.getRecipientWallet().getId().equals(currentWalletId))) {
+                totalIncome = totalIncome.add(tx.getAmount());
+            } else if (tx.getWallet().getId().equals(currentWalletId)) {
+                totalOutcome = totalOutcome.add(tx.getAmount());
+            }
+        }
+
+        java.math.BigDecimal netBalance = totalIncome.subtract(totalOutcome);
+
+        String formattedIncome = "+ " + currencyFormat.format(totalIncome.setScale(2, RoundingMode.HALF_UP));
+        String formattedOutcome = "- " + currencyFormat.format(totalOutcome.setScale(2, RoundingMode.HALF_UP));
+        String formattedNet = (netBalance.compareTo(java.math.BigDecimal.ZERO) >= 0 ? "+ " : "- ")
+                + currencyFormat.format(netBalance.abs().setScale(2, RoundingMode.HALF_UP));
+
+        // Add spacing
+        document.add(new Paragraph("\n"));
+
+        // Add summary in vertical table
+        Table summaryTable = new Table(2)
+                .useAllAvailableWidth()
+                .setMarginTop(10);
+
+        summaryTable.addCell("Total Income");
+        summaryTable.addCell(formattedIncome);
+
+        summaryTable.addCell("Total Outcome");
+        summaryTable.addCell(formattedOutcome);
+
+        summaryTable.addCell("Net Balance");
+        summaryTable.addCell(formattedNet);
+
+        document.add(summaryTable);
         document.close();
 
         return new ByteArrayInputStream(out.toByteArray());

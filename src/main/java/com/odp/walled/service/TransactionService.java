@@ -72,6 +72,8 @@ public class TransactionService {
 
     public ByteArrayInputStream exportTransactionsAsPdf(Long walletId) {
         List<Transaction> transactions = transactionRepository.findAllByWalletIdOrRecipientWalletId(walletId);
-        return PdfGenerator.generateTransactionHistory(transactions, walletId);
+        Wallet wallet = walletRepository.findById(walletId)
+                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+        return PdfGenerator.generateTransactionHistory(transactions, wallet);
     }
 }
