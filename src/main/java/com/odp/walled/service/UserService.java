@@ -39,4 +39,10 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFound("User not found"));
         return userMapper.toResponse(user);
     }
+
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFound("User not found"));
+        return userMapper.toResponse(user);
+    }
 }

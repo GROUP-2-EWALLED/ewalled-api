@@ -21,20 +21,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final UserService userService;
 
-    @Autowired
-    private UserService userService;
-
-    // @PostMapping("/register")
-    // public ResponseEntity<RegisterRequest> register(@RequestBody RegisterRequest
-    // request) {
-    // userService.createUser(request);
-    // return ResponseEntity.ok("Registered successfully");
-    // }
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         UserResponse user = userService.createUser(request);
-        return ResponseEntity.ok(user);
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return ResponseEntity.ok(new AuthResponse(token, user));
     }
 
     @PostMapping("/login")
@@ -46,6 +40,8 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String token = jwtUtil.generateToken(authentication.getName());
-        return ResponseEntity.ok(new AuthResponse(token));
+        UserResponse user = userService.getUserByEmail(request.getEmail());
+
+        return ResponseEntity.ok(new AuthResponse(token, user));
     }
 }
