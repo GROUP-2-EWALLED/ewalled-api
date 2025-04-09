@@ -2,11 +2,13 @@ package com.odp.walled.service;
 
 import com.odp.walled.dto.UserRequest;
 import com.odp.walled.dto.UserResponse;
+import com.odp.walled.dto.RegisterRequest;
 import com.odp.walled.exception.DuplicateException;
 import com.odp.walled.exception.ResourceNotFound;
 import com.odp.walled.mapper.UserMapper;
 import com.odp.walled.model.User;
 import com.odp.walled.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -16,19 +18,19 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserResponse createUser(UserRequest request) {
-        if (request.getPhoneNumber() != null && 
-        userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+    public UserResponse createUser(RegisterRequest request) {
+        if (request.getPhoneNumber() != null &&
+                userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
             throw new DuplicateException("Phone number already in use");
         }
         if (userRepository.existsByEmail(request.getEmail()))
             throw new DuplicateException("Email already exists");
 
-        if (userRepository.existsByUsername(request.getUsername()))
-            throw new DuplicateException("Username already exists");
-        
         User user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         return userMapper.toResponse(userRepository.save(user));
     }
 

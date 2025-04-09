@@ -1,4 +1,5 @@
 package com.odp.walled.model;
+
 import jakarta.persistence.*;
 
 import lombok.Data;
@@ -13,9 +14,6 @@ public class User {
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;
-
-    @Column(nullable = false, length = 20)
-    private String username;
 
     @Column(nullable = false, length = 70)
     private String fullname;
