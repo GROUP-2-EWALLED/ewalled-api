@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.Locale;
 
 import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
@@ -56,30 +58,30 @@ public class PdfGenerator {
 
         document.add(userInfo);
 
-        Paragraph title = new Paragraph("Transaction History")
-                .setFontSize(20)
+        Paragraph title = new Paragraph("TRANSACTION HISTORY")
+                .setFontSize(16)
                 .simulateBold()
                 .setMarginBottom(10);
 
         document.add(title);
 
+        DeviceRgb headerColor = new DeviceRgb(0, 128, 128); // Dark teal
+        DeviceRgb altRowColor = new DeviceRgb(232, 252, 252); // Light teal background
+        DeviceRgb white = new DeviceRgb(255, 255, 255);
+        DeviceRgb summaryRowColor = new DeviceRgb(255, 224, 179); // soft orange/peach
+        DeviceRgb altSummaryRowColor = new DeviceRgb(255, 239, 214); // light peach
+
         Table table = new Table(UnitValue.createPercentArray(new float[] { 2, 2, 2, 3, 4 }))
                 .useAllAvailableWidth();
 
-        // Header row
-        table.addHeaderCell("Date")
-                .setTextAlignment(TextAlignment.CENTER);
-        table.addHeaderCell("Type")
-                .setTextAlignment(TextAlignment.CENTER);
-        table.addHeaderCell("Amount")
-                .setTextAlignment(TextAlignment.CENTER);
-        table.addHeaderCell("From / To")
-                .setTextAlignment(TextAlignment.CENTER);
-        table.addHeaderCell("Description")
-                .setTextAlignment(TextAlignment.CENTER);
+        String[] headers = { "Date", "Type", "Amount", "From / To", "Description" };
+        for (String header : headers) {
+            table.addHeaderCell(styledCell(header, headerColor).setFontColor(white));
+        }
 
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("id", "ID"));
+        boolean useAlt = true;
 
         for (Transaction tx : transactions) {
             String date = tx.getTransactionDate().format(dateFormat);
@@ -90,6 +92,9 @@ public class PdfGenerator {
 
             boolean isTransfer = tx.getTransactionType() == Transaction.TransactionType.TRANSFER;
             boolean isTopUp = tx.getTransactionType() == Transaction.TransactionType.TOP_UP;
+
+            DeviceRgb rowColor = useAlt ? altRowColor : white;
+            ;
 
             if (isTransfer) {
                 Long senderId = tx.getWallet().getId();
@@ -111,11 +116,13 @@ public class PdfGenerator {
                 formattedAmount = currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
             }
 
-            table.addCell(date).setTextAlignment(TextAlignment.CENTER);
-            table.addCell(type).setTextAlignment(TextAlignment.CENTER);
-            table.addCell(formattedAmount).setTextAlignment(TextAlignment.CENTER);
-            table.addCell(fromTo).setTextAlignment(TextAlignment.CENTER);
-            table.addCell(desc).setTextAlignment(TextAlignment.CENTER);
+            table.addCell(styledCell(date, rowColor));
+            table.addCell(styledCell(type, rowColor));
+            table.addCell(styledCell(formattedAmount, rowColor));
+            table.addCell(styledCell(fromTo, rowColor));
+            table.addCell(styledCell(desc, rowColor));
+
+            useAlt = !useAlt;
         }
 
         document.add(table);
@@ -144,23 +151,33 @@ public class PdfGenerator {
         document.add(new Paragraph("\n"));
 
         // Add summary in vertical table
-        Table summaryTable = new Table(2)
-                .useAllAvailableWidth()
-                .setMarginTop(10);
+        Table summaryTable = new Table(UnitValue.createPercentArray(new float[] { 3, 1 }))
+                .useAllAvailableWidth();
 
-        summaryTable.addCell("Total Income");
-        summaryTable.addCell(formattedIncome);
+        summaryTable.addCell(
+                styledCell("Total Income: ", altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
+        summaryTable.addCell(styledCell(formattedIncome, altSummaryRowColor).simulateBold());
 
-        summaryTable.addCell("Total Outcome");
-        summaryTable.addCell(formattedOutcome);
+        summaryTable.addCell(
+                styledCell("Total Outcome:", summaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
+        summaryTable.addCell(styledCell(formattedOutcome, summaryRowColor).simulateBold());
 
-        summaryTable.addCell("Net Balance");
-        summaryTable.addCell(formattedNet);
+        summaryTable.addCell(
+                styledCell("Net Balance: ", altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
+        summaryTable.addCell(styledCell(formattedNet, altSummaryRowColor).simulateBold());
 
         document.add(summaryTable);
         document.close();
 
         return new ByteArrayInputStream(out.toByteArray());
+    }
+
+    private static Cell styledCell(String content, DeviceRgb bgColor) {
+        return new Cell()
+                .add(new Paragraph(content))
+                .setBackgroundColor(bgColor)
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER);
     }
 
 }
