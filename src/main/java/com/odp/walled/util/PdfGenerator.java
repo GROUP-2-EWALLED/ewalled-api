@@ -151,20 +151,23 @@ public class PdfGenerator {
         document.add(new Paragraph("\n"));
 
         // Add summary in vertical table
-        Table summaryTable = new Table(UnitValue.createPercentArray(new float[] { 3, 1 }))
+        Table summaryTable = new Table(UnitValue.createPercentArray(new float[] { 5, 1 }))
                 .useAllAvailableWidth();
 
         summaryTable.addCell(
                 styledCell("Total Income: ", altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
-        summaryTable.addCell(styledCell(formattedIncome, altSummaryRowColor).simulateBold());
+        summaryTable.addCell(
+                styledCell(formattedIncome, altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
 
         summaryTable.addCell(
                 styledCell("Total Outcome:", summaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
-        summaryTable.addCell(styledCell(formattedOutcome, summaryRowColor).simulateBold());
+        summaryTable.addCell(
+                styledCell(formattedOutcome, summaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
 
         summaryTable.addCell(
                 styledCell("Net Balance: ", altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
-        summaryTable.addCell(styledCell(formattedNet, altSummaryRowColor).simulateBold());
+        summaryTable.addCell(
+                styledCell(formattedNet, altSummaryRowColor).setTextAlignment(TextAlignment.RIGHT).simulateBold());
 
         document.add(summaryTable);
         document.close();
