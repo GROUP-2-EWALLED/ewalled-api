@@ -9,6 +9,7 @@ import com.odp.walled.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
@@ -24,24 +25,29 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
-        UserResponse user = userService.createUser(request);
-        String token = jwtUtil.generateToken(user.getEmail());
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+        userService.createUser(request);
 
-        return ResponseEntity.ok(new AuthResponse(token, user));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body("Registration successful. Please log in.");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<UserResponse> login(@RequestBody AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(), request.getPassword()));
+        // System.out.println(authentication.getName() + "jasdjsd");
+        // System.out.println(request.getPassword());
+        // System.out.println(authentication);
+        // SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // String token = jwtUtil.generateToken(authentication.getName());
+        // System.out.println("1233423hk" + token);
+        UserResponse user = userService.getUserByEmail(authentication.getName());
+        // System.out.println(user);
 
-        String token = jwtUtil.generateToken(authentication.getName());
-        UserResponse user = userService.getUserByEmail(request.getEmail());
-
-        return ResponseEntity.ok(new AuthResponse(token, user));
+        return ResponseEntity.ok(user);
     }
 }

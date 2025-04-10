@@ -2,12 +2,19 @@ package com.odp.walled.config;
 
 import com.odp.walled.filter.JwtFilter;
 import com.odp.walled.service.UserDetailsServiceImpl;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,19 +25,15 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**", "/health")
-                        .permitAll()
-                        .anyRequest().authenticated())
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    @Autowired
+    private UserDetailsServiceImpl userDetailsService;
 
-        return http.build();
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService); // Set the UserDetailsService
+        authProvider.setPasswordEncoder(passwordEncoder()); // Set the PasswordEncoder
+        return authProvider;
     }
 
     @Bean
@@ -42,4 +45,31 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**", "/health")
+                        .permitAll()
+                        .anyRequest().authenticated())
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            System.out.println("[DEBUG] 401 Unauthorized - " + authException.getMessage());
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized - Please log in.");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            System.out.println("[DEBUG] 403 Access Denied - " + accessDeniedException.getMessage());
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN,
+                                    "Access Denied - You don't have permission.");
+                        }));
+
+        return http.build();
+    }
+
 }
