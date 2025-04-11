@@ -16,7 +16,9 @@ public class WebConfig {
                 registry.addMapping("/api/**") // <-- FIXED HERE
                         .allowedOrigins(
                                 "http://localhost:5173",
-                                "http://localhost:5174")
+                                "http://localhost:5174",
+                                "http://localhost:8080",
+                                "https://ewalled-web-rakamin.vercel.app/")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
