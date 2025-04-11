@@ -28,6 +28,9 @@ public class UserService {
         if (userRepository.existsByEmail(request.getEmail()))
             throw new DuplicateException("Email already exists");
 
+        if (userRepository.existsByUsername(request.getUsername()))
+            throw new DuplicateException("Username already exists");
+
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
