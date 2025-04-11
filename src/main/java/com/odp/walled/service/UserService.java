@@ -19,6 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final WalletService walletService;
 
     public UserResponse createUser(RegisterRequest request) {
         if (request.getPhoneNumber() != null &&
@@ -34,7 +35,11 @@ public class UserService {
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        return userMapper.toResponse(userRepository.save(user));
+        user = userRepository.save(user);
+
+        walletService.createWallet(user.getId());
+
+        return userMapper.toResponse(user);
     }
 
     public UserResponse getUserById(Long id) {
