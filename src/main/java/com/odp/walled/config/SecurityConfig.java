@@ -77,7 +77,8 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**", "/health")
+                        .requestMatchers("/api/auth/login", "/api/auth/register", "/h2-console/**", "/health",
+                                "/api/users/**", "/api/wallets/**", "/api/transactions/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
