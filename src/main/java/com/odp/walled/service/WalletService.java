@@ -1,7 +1,9 @@
 package com.odp.walled.service;
 
+import com.odp.walled.dto.UserResponse;
 import com.odp.walled.dto.WalletResponse;
 import com.odp.walled.exception.ResourceNotFound;
+import com.odp.walled.mapper.UserMapper;
 import com.odp.walled.mapper.WalletMapper;
 import com.odp.walled.model.User;
 import com.odp.walled.model.Wallet;
@@ -41,6 +43,12 @@ public class WalletService {
 
     public WalletResponse getWalletById(Long id) {
         Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+        return walletMapper.toResponse(wallet);
+    }
+
+    public WalletResponse getWalletByUserId(Long userId) {
+        Wallet wallet = walletRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
         return walletMapper.toResponse(wallet);
     }
