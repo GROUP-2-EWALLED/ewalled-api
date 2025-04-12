@@ -60,7 +60,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true); // penting kalau pakai cookie/token
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/", configuration);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
