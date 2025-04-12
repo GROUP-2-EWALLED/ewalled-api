@@ -14,4 +14,5 @@ public class TransactionResponse {
     private Long recipientWalletId;
     private LocalDateTime transactionDate;
     private String description;
+    private String fromTo;
 }
