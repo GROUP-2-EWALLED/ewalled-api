@@ -2,9 +2,14 @@ package com.odp.walled.controller;
 
 import com.odp.walled.dto.AuthRequest;
 import com.odp.walled.dto.AuthResponse;
+import com.odp.walled.dto.LoginResponse;
 import com.odp.walled.dto.RegisterRequest;
 import com.odp.walled.dto.UserResponse;
+import com.odp.walled.dto.WalletResponse;
+import com.odp.walled.mapper.UserMapper;
+import com.odp.walled.model.User;
 import com.odp.walled.service.UserService;
+import com.odp.walled.service.WalletService;
 import com.odp.walled.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +28,8 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final WalletService walletService;
+    private final UserMapper userMapper;
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
@@ -34,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<LoginResponse> login(@RequestBody AuthRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(), request.getPassword()));
@@ -45,9 +52,13 @@ public class AuthController {
 
         // String token = jwtUtil.generateToken(authentication.getName());
         // System.out.println("1233423hk" + token);
-        UserResponse user = userService.getUserByEmail(authentication.getName());
+
+        User user = userService.getUserObjectByEmail(authentication.getName());
+
+        UserResponse userResponse = userMapper.toResponse(user);
+        WalletResponse wallet = walletService.getWalletByUserObject(user);
         // System.out.println(user);
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(new LoginResponse(userResponse, wallet));
     }
 }

@@ -44,4 +44,11 @@ public class WalletService {
                 .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
         return walletMapper.toResponse(wallet);
     }
+
+    public WalletResponse getWalletByUserObject(User user) {
+
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+        return walletMapper.toResponse(wallet);
+    }
 }

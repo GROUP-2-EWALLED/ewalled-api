@@ -1,12 +1,11 @@
 package com.odp.walled.dto;
 
-import lombok.Data;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AuthResponse {
-    private String token;
+public class LoginResponse {
     private UserResponse user;
     private WalletResponse wallet;
 }
