@@ -22,6 +22,9 @@ public class UserService {
     private final WalletService walletService;
 
     public UserResponse createUser(RegisterRequest request) {
+        if ("".equals(request.getPhoneNumber())) {
+            request.setPhoneNumber(null);
+        }
         if (request.getPhoneNumber() != null &&
                 userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
             throw new DuplicateException("Phone number already in use");
