@@ -1,5 +1,6 @@
 package com.odp.walled.controller;
 
+import com.odp.walled.dto.WalletCheckResponse;
 import com.odp.walled.dto.WalletResponse;
 import com.odp.walled.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -31,4 +32,8 @@ public class WalletController {
         return walletService.getWalletByUserId(userId);
     }
 
+    @GetMapping("/check")
+    public WalletCheckResponse checkWallet(@RequestParam String accountNumber) {
+        return walletService.checkWalletByAccountNumber(accountNumber);
+    }
 }
