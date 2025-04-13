@@ -7,6 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    @Query("SELECT t FROM Transaction t WHERE t.wallet.id = :walletId OR t.recipientWallet.id = :walletId")
+    @Query("SELECT t FROM Transaction t LEFT JOIN FETCH t.wallet LEFT JOIN FETCH t.recipientWallet WHERE t.wallet.id = :walletId OR t.recipientWallet.id = :walletId")
     List<Transaction> findAllByWalletIdOrRecipientWalletId(@Param("walletId") Long walletId);
 }

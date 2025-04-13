@@ -1,5 +1,7 @@
 package com.odp.walled.service;
 
+import com.odp.walled.dto.FinancialSummaryDto;
+import com.odp.walled.dto.FinancialSummaryResponse;
 import com.odp.walled.dto.TransactionRequest;
 import com.odp.walled.dto.TransactionResponse;
 import com.odp.walled.exception.InsufficientBalanceException;
@@ -10,6 +12,8 @@ import com.odp.walled.model.Transaction.TransactionType;
 import com.odp.walled.model.Wallet;
 import com.odp.walled.repository.TransactionRepository;
 import com.odp.walled.repository.WalletRepository;
+import com.odp.walled.util.FinancialSummaryUtil;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -18,6 +22,7 @@ import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,4 +95,39 @@ public class TransactionService {
             return response;
         }).toList();
     }
+
+    public FinancialSummaryResponse getSummary(Long walletId) {
+        Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+
+        List<Transaction> allTransactions = transactionRepository
+                .findAllByWalletIdOrRecipientWalletId(walletId);
+
+        List<Transaction> incomeTransactions = allTransactions.stream()
+                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TOP_UP ||
+                        (t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
+                                t.getRecipientWallet() != null &&
+                                t.getRecipientWallet().getId().equals(walletId)))
+                .toList();
+
+        List<Transaction> outcomeTransactions = allTransactions.stream()
+                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
+                        t.getWallet() != null &&
+                        t.getWallet().getId().equals(walletId))
+                .toList();
+
+        List<FinancialSummaryDto> weekly = FinancialSummaryUtil.mergeIncomeOutcome(
+                FinancialSummaryUtil.aggregateByWeek(incomeTransactions, walletId, true),
+                FinancialSummaryUtil.aggregateByWeek(outcomeTransactions, walletId, false));
+
+        List<FinancialSummaryDto> monthly = FinancialSummaryUtil.mergeIncomeOutcome(
+                FinancialSummaryUtil.aggregateByMonth(incomeTransactions, walletId, true),
+                FinancialSummaryUtil.aggregateByMonth(outcomeTransactions, walletId, false));
+
+        List<FinancialSummaryDto> quarterly = FinancialSummaryUtil.mergeIncomeOutcome(
+                FinancialSummaryUtil.aggregateByQuarter(incomeTransactions, walletId, true),
+                FinancialSummaryUtil.aggregateByQuarter(outcomeTransactions, walletId, false));
+
+        return new FinancialSummaryResponse(weekly, monthly, quarterly);
+    }
+
 }
