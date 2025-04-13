@@ -97,17 +97,10 @@ public class TransactionService {
     }
 
     public FinancialSummaryResponse getSummary(Long walletId) {
+        Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+
         List<Transaction> allTransactions = transactionRepository
                 .findAllByWalletIdOrRecipientWalletId(walletId);
-
-        System.out.println("=== All Transactions ===");
-        for (Transaction t : allTransactions) {
-            System.out.printf("ID: %d | Type: %s | Wallet: %d | Recipient: %s\n",
-                    t.getId(),
-                    t.getTransactionType(),
-                    t.getWallet() != null ? t.getWallet().getId() : null,
-                    t.getRecipientWallet() != null ? t.getRecipientWallet().getId() : "null");
-        }
 
         List<Transaction> incomeTransactions = allTransactions.stream()
                 .filter(t -> t.getTransactionType() == Transaction.TransactionType.TOP_UP ||
