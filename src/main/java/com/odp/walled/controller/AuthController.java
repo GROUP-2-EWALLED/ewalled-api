@@ -53,10 +53,10 @@ public class AuthController {
         // String token = jwtUtil.generateToken(authentication.getName());
         // System.out.println("1233423hk" + token);
 
-        User user = userService.getUserObjectByEmail(authentication.getName());
+        User userObject = userService.getUserObjectByEmail(authentication.getName());
 
-        UserResponse userResponse = userMapper.toResponse(user);
-        WalletResponse wallet = walletService.getWalletByUserObject(user);
+        UserResponse userResponse = userMapper.toResponse(userObject);
+        WalletResponse wallet = walletService.getWalletByUserObject(userObject);
         // System.out.println(user);
 
         return ResponseEntity.ok(new LoginResponse(userResponse, wallet));
