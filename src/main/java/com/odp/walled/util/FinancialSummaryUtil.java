@@ -2,6 +2,7 @@ package com.odp.walled.util;
 
 import com.odp.walled.dto.FinancialSummaryDto;
 import com.odp.walled.model.Transaction;
+import com.odp.walled.util.PeriodKey;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -14,20 +15,22 @@ public class FinancialSummaryUtil {
 
     public static List<FinancialSummaryDto> aggregateByWeek(List<Transaction> transactions, Long walletId,
             boolean isIncome) {
-        Map<Integer, BigDecimal> result = new HashMap<>();
+        Map<PeriodKey, BigDecimal> result = new HashMap<>();
         for (Transaction t : transactions) {
-            if (isIncome && isIncome(t, walletId)) {
-                int week = t.getTransactionDate().get(WeekFields.ISO.weekOfWeekBasedYear());
-                result.put(week, result.getOrDefault(week, BigDecimal.ZERO).add(t.getAmount()));
-            } else if (!isIncome && isOutcome(t, walletId)) {
-                int week = t.getTransactionDate().get(WeekFields.ISO.weekOfWeekBasedYear());
-                result.put(week, result.getOrDefault(week, BigDecimal.ZERO).add(t.getAmount()));
+            if ((isIncome && isIncome(t, walletId)) || (!isIncome && isOutcome(t, walletId))) {
+                LocalDate date = t.getTransactionDate().toLocalDate();
+                int week = date.get(WeekFields.ISO.weekOfWeekBasedYear());
+                int year = date.get(WeekFields.ISO.weekBasedYear());
+                PeriodKey key = new PeriodKey(week, year);
+                result.put(key, result.getOrDefault(key, BigDecimal.ZERO).add(t.getAmount()));
             }
         }
 
-        List<Integer> latestWeeks = getLatestWeeks(4);
+        List<PeriodKey> latestWeeks = getLatestWeeks(4);
         return latestWeeks.stream()
-                .map(week -> new FinancialSummaryDto("Week " + week, result.getOrDefault(week, BigDecimal.ZERO),
+                .map(weekKey -> new FinancialSummaryDto(
+                        weekKey.toWeekLabel(),
+                        result.getOrDefault(weekKey, BigDecimal.ZERO),
                         BigDecimal.ZERO))
                 .toList();
     }
@@ -56,20 +59,23 @@ public class FinancialSummaryUtil {
 
     public static List<FinancialSummaryDto> aggregateByQuarter(List<Transaction> transactions, Long walletId,
             boolean isIncome) {
-        Map<Integer, BigDecimal> result = new HashMap<>();
+        Map<PeriodKey, BigDecimal> result = new HashMap<>();
         for (Transaction t : transactions) {
-            if (isIncome && isIncome(t, walletId)) {
-                int quarter = (t.getTransactionDate().getMonthValue() - 1) / 3 + 1;
-                result.put(quarter, result.getOrDefault(quarter, BigDecimal.ZERO).add(t.getAmount()));
-            } else if (!isIncome && isOutcome(t, walletId)) {
-                int quarter = (t.getTransactionDate().getMonthValue() - 1) / 3 + 1;
-                result.put(quarter, result.getOrDefault(quarter, BigDecimal.ZERO).add(t.getAmount()));
+            if ((isIncome && isIncome(t, walletId)) || (!isIncome && isOutcome(t, walletId))) {
+                LocalDate date = t.getTransactionDate().toLocalDate();
+                int quarter = (date.getMonthValue() - 1) / 3 + 1;
+                int year = date.getYear();
+                PeriodKey key = new PeriodKey(quarter, year);
+                result.put(key, result.getOrDefault(key, BigDecimal.ZERO).add(t.getAmount()));
             }
         }
 
-        List<Integer> latestQuarters = getLatestQuarters(4);
+        List<PeriodKey> latestQuarters = getLatestQuarters(4);
         return latestQuarters.stream()
-                .map(q -> new FinancialSummaryDto("Q" + q, result.getOrDefault(q, BigDecimal.ZERO), BigDecimal.ZERO))
+                .map(q -> new FinancialSummaryDto(
+                        q.toQuarterLabel(),
+                        result.getOrDefault(q, BigDecimal.ZERO),
+                        BigDecimal.ZERO))
                 .toList();
     }
 
@@ -112,11 +118,14 @@ public class FinancialSummaryUtil {
                 Objects.equals(t.getWallet().getId(), walletId);
     }
 
-    private static List<Integer> getLatestWeeks(int count) {
-        int currentWeek = LocalDate.now().get(WeekFields.ISO.weekOfWeekBasedYear());
-        List<Integer> weeks = new ArrayList<>();
+    private static List<PeriodKey> getLatestWeeks(int count) {
+        List<PeriodKey> weeks = new ArrayList<>();
+        LocalDate date = LocalDate.now();
         for (int i = 0; i < count; i++) {
-            weeks.add(currentWeek - i);
+            int week = date.get(WeekFields.ISO.weekOfWeekBasedYear());
+            int year = date.get(WeekFields.ISO.weekBasedYear());
+            weeks.add(new PeriodKey(week, year));
+            date = date.minusWeeks(1);
         }
         return weeks;
     }
@@ -130,11 +139,14 @@ public class FinancialSummaryUtil {
         return months;
     }
 
-    private static List<Integer> getLatestQuarters(int count) {
-        int currentQuarter = (LocalDate.now().getMonthValue() - 1) / 3 + 1;
-        List<Integer> quarters = new ArrayList<>();
+    private static List<PeriodKey> getLatestQuarters(int count) {
+        List<PeriodKey> quarters = new ArrayList<>();
+        YearMonth current = YearMonth.now();
         for (int i = 0; i < count; i++) {
-            quarters.add(currentQuarter - i);
+            int quarter = (current.getMonthValue() - 1) / 3 + 1;
+            int year = current.getYear();
+            quarters.add(new PeriodKey(quarter, year));
+            current = current.minusMonths(3);
         }
         return quarters;
     }
