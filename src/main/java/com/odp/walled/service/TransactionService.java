@@ -13,10 +13,12 @@ import com.odp.walled.model.Wallet;
 import com.odp.walled.repository.TransactionRepository;
 import com.odp.walled.repository.WalletRepository;
 import com.odp.walled.util.FinancialSummaryUtil;
+import com.odp.walled.util.PdfGenerator;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.temporal.WeekFields;
 import java.util.*;
@@ -30,104 +32,112 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class TransactionService {
-    private final WalletRepository walletRepository;
-    private final TransactionRepository transactionRepository;
-    private final TransactionMapper transactionMapper;
+        private final WalletRepository walletRepository;
+        private final TransactionRepository transactionRepository;
+        private final TransactionMapper transactionMapper;
 
-    @Transactional
-    public TransactionResponse processTransaction(TransactionRequest request) {
-        Wallet wallet = walletRepository.findById(request.getWalletId())
-                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+        @Transactional
+        public TransactionResponse processTransaction(TransactionRequest request) {
+                Wallet wallet = walletRepository.findById(request.getWalletId())
+                                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
 
-        Transaction transaction = new Transaction();
-        transaction.setWallet(wallet);
-        transaction.setTransactionType(request.getTransactionType());
-        transaction.setAmount(request.getAmount());
-        transaction.setDescription(request.getDescription());
+                Transaction transaction = new Transaction();
+                transaction.setWallet(wallet);
+                transaction.setTransactionType(request.getTransactionType());
+                transaction.setAmount(request.getAmount());
+                transaction.setDescription(request.getDescription());
 
-        if (request.getTransactionType() == TransactionType.TRANSFER) {
-            Wallet recipient = walletRepository.findByAccountNumber(request.getRecipientAccountNumber())
-                    .orElseThrow(() -> new ResourceNotFound("Recipient wallet not found"));
+                if (request.getTransactionType() == TransactionType.TRANSFER) {
+                        Wallet recipient = walletRepository.findByAccountNumber(request.getRecipientAccountNumber())
+                                        .orElseThrow(() -> new ResourceNotFound("Recipient wallet not found"));
 
-            if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
-                throw new InsufficientBalanceException("Insufficient balance");
-            }
+                        if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
+                                throw new InsufficientBalanceException("Insufficient balance");
+                        }
 
-            wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
-            recipient.setBalance(recipient.getBalance().add(request.getAmount()));
-            walletRepository.save(recipient);
+                        wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
+                        recipient.setBalance(recipient.getBalance().add(request.getAmount()));
+                        walletRepository.save(recipient);
 
-            // Set the recipient wallet
-            transaction.setRecipientWallet(recipient);
-        } else {
-            // TOP_UP
-            wallet.setBalance(wallet.getBalance().add(request.getAmount()));
+                        // Set the recipient wallet
+                        transaction.setRecipientWallet(recipient);
+                } else {
+                        // TOP_UP
+                        wallet.setBalance(wallet.getBalance().add(request.getAmount()));
+                }
+
+                walletRepository.save(wallet);
+                return transactionMapper.toResponse(transactionRepository.save(transaction));
         }
 
-        walletRepository.save(wallet);
-        return transactionMapper.toResponse(transactionRepository.save(transaction));
-    }
+        public List<TransactionResponse> getTransactionsByWalletId(Long walletId) {
+                List<Transaction> transactions = transactionRepository
+                                .findAllByWalletIdOrRecipientWalletId(walletId);
 
-    public List<TransactionResponse> getTransactionsByWalletId(Long walletId) {
-        List<Transaction> transactions = transactionRepository
-                .findAllByWalletIdOrRecipientWalletId(walletId);
+                return transactions.stream().map(transaction -> {
+                        TransactionResponse response = transactionMapper.toResponse(transaction);
 
-        return transactions.stream().map(transaction -> {
-            TransactionResponse response = transactionMapper.toResponse(transaction);
+                        if (transaction.getTransactionType() == TransactionType.TOP_UP) {
+                                response.setFromTo("-");
+                        } else if (transaction.getWallet().getId().equals(walletId)) {
+                                // User is the sender
+                                String recipientName = transaction.getRecipientWallet() != null
+                                                ? transaction.getRecipientWallet().getUser().getFullname()
+                                                : "-";
+                                response.setFromTo("To: " + recipientName);
+                        } else if (transaction.getRecipientWallet() != null &&
+                                        transaction.getRecipientWallet().getId().equals(walletId)) {
+                                // User is the recipient
+                                String senderName = transaction.getWallet().getUser().getFullname();
+                                response.setFromTo("From: " + senderName);
+                        } else {
+                                response.setFromTo("-");
+                        }
 
-            if (transaction.getTransactionType() == TransactionType.TOP_UP) {
-                response.setFromTo("-");
-            } else if (transaction.getWallet().getId().equals(walletId)) {
-                // User is the sender
-                String recipientName = transaction.getRecipientWallet() != null
-                        ? transaction.getRecipientWallet().getUser().getFullname()
-                        : "-";
-                response.setFromTo("To: " + recipientName);
-            } else if (transaction.getRecipientWallet() != null &&
-                    transaction.getRecipientWallet().getId().equals(walletId)) {
-                // User is the recipient
-                String senderName = transaction.getWallet().getUser().getFullname();
-                response.setFromTo("From: " + senderName);
-            } else {
-                response.setFromTo("-");
-            }
+                        return response;
+                }).toList();
+        }
 
-            return response;
-        }).toList();
-    }
+        public FinancialSummaryResponse getSummary(Long walletId) {
+                Wallet wallet = walletRepository.findById(walletId)
+                                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
 
-    public FinancialSummaryResponse getSummary(Long walletId) {
-        Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+                List<Transaction> allTransactions = transactionRepository
+                                .findAllByWalletIdOrRecipientWalletId(walletId);
 
-        List<Transaction> allTransactions = transactionRepository
-                .findAllByWalletIdOrRecipientWalletId(walletId);
+                List<Transaction> incomeTransactions = allTransactions.stream()
+                                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TOP_UP ||
+                                                (t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
+                                                                t.getRecipientWallet() != null &&
+                                                                t.getRecipientWallet().getId().equals(walletId)))
+                                .toList();
 
-        List<Transaction> incomeTransactions = allTransactions.stream()
-                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TOP_UP ||
-                        (t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
-                                t.getRecipientWallet() != null &&
-                                t.getRecipientWallet().getId().equals(walletId)))
-                .toList();
+                List<Transaction> outcomeTransactions = allTransactions.stream()
+                                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
+                                                t.getWallet() != null &&
+                                                t.getWallet().getId().equals(walletId))
+                                .toList();
 
-        List<Transaction> outcomeTransactions = allTransactions.stream()
-                .filter(t -> t.getTransactionType() == Transaction.TransactionType.TRANSFER &&
-                        t.getWallet() != null &&
-                        t.getWallet().getId().equals(walletId))
-                .toList();
+                List<FinancialSummaryDto> weekly = FinancialSummaryUtil.mergeIncomeOutcome(
+                                FinancialSummaryUtil.aggregateByWeek(incomeTransactions, walletId, true),
+                                FinancialSummaryUtil.aggregateByWeek(outcomeTransactions, walletId, false));
 
-        List<FinancialSummaryDto> weekly = FinancialSummaryUtil.mergeIncomeOutcome(
-                FinancialSummaryUtil.aggregateByWeek(incomeTransactions, walletId, true),
-                FinancialSummaryUtil.aggregateByWeek(outcomeTransactions, walletId, false));
+                List<FinancialSummaryDto> monthly = FinancialSummaryUtil.mergeIncomeOutcome(
+                                FinancialSummaryUtil.aggregateByMonth(incomeTransactions, walletId, true),
+                                FinancialSummaryUtil.aggregateByMonth(outcomeTransactions, walletId, false));
 
-        List<FinancialSummaryDto> monthly = FinancialSummaryUtil.mergeIncomeOutcome(
-                FinancialSummaryUtil.aggregateByMonth(incomeTransactions, walletId, true),
-                FinancialSummaryUtil.aggregateByMonth(outcomeTransactions, walletId, false));
+                List<FinancialSummaryDto> quarterly = FinancialSummaryUtil.mergeIncomeOutcome(
+                                FinancialSummaryUtil.aggregateByQuarter(incomeTransactions, walletId, true),
+                                FinancialSummaryUtil.aggregateByQuarter(outcomeTransactions, walletId, false));
 
-        List<FinancialSummaryDto> quarterly = FinancialSummaryUtil.mergeIncomeOutcome(
-                FinancialSummaryUtil.aggregateByQuarter(incomeTransactions, walletId, true),
-                FinancialSummaryUtil.aggregateByQuarter(outcomeTransactions, walletId, false));
+                return new FinancialSummaryResponse(weekly, monthly, quarterly);
+        }
 
-        return new FinancialSummaryResponse(weekly, monthly, quarterly);
-    }
+        public ByteArrayInputStream exportTransactionsAsPdf(Long walletId) {
+                List<Transaction> transactions = transactionRepository.findAllByWalletIdOrRecipientWalletId(walletId);
+                Wallet wallet = walletRepository.findById(walletId)
+                                .orElseThrow(() -> new ResourceNotFound("Wallet not found"));
+                return PdfGenerator.generateTransactionHistory(transactions, wallet);
+        }
 
 }
