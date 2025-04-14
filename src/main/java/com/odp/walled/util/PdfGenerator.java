@@ -74,7 +74,7 @@ public class PdfGenerator {
         DeviceRgb summaryRowColor = new DeviceRgb(255, 224, 179); // soft orange/peach
         DeviceRgb altSummaryRowColor = new DeviceRgb(255, 239, 214); // light peach
 
-        Table table = new Table(UnitValue.createPercentArray(new float[] { 2, 2, 2, 3, 4 }))
+        Table table = new Table(UnitValue.createPercentArray(new float[] { 2, 2, 3, 3, 3 }))
                 .useAllAvailableWidth();
 
         String[] headers = { "Date", "Type", "Amount", "From / To", "Description" };
@@ -113,7 +113,7 @@ public class PdfGenerator {
                     formattedAmount = "+ " + currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
                 }
             } else if (isTopUp) {
-                type = "Top-up";
+                type = "TOP-UP";
                 formattedAmount = "+ " + currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
             } else {
                 formattedAmount = currencyFormat.format(tx.getAmount().setScale(2, RoundingMode.HALF_UP));
@@ -154,7 +154,7 @@ public class PdfGenerator {
         document.add(new Paragraph("\n"));
 
         // Add summary in vertical table
-        Table summaryTable = new Table(UnitValue.createPercentArray(new float[] { 5, 1 }))
+        Table summaryTable = new Table(UnitValue.createPercentArray(new float[] { 4, 2 }))
                 .useAllAvailableWidth();
 
         summaryTable.addCell(
