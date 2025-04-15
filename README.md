@@ -1,117 +1,345 @@
-# Walled Project README
+# eWalled Project README
 
-This document provides instructions on how to run the Walled project using `./mvnw` and details the API testing documentation based on the provided Postman collection.
+Dokumen ini memberikan instruksi cara menjalankan proyek eWalled menggunakan ./mvnw dan juga berisi API documentation testing berdasarkan koleksi Postman yang tersedia.
 
 ## Prerequisites
 
-* Java Development Kit (JDK) 11 or higher
-* Maven Wrapper (`./mvnw`) included in the project
+- Java Development Kit (JDK) 11 or higher
+- Maven Wrapper (`./mvnw`) included in the project
 
 ## Running the Project
 
-1.  **Clone the Repository (if you haven't already):**
+1.  **Clone the Repository:**
 
     ```bash
-    git clone git@github.com:verlym/walled-api.git
-    cd walled-api
+    git clone https://github.com/GROUP-2-EWALLED/ewalled-api.git
+    cd ewalled-api
     ```
 
 2.  **Build and Run the Application:**
 
-    Use the Maven Wrapper to build and run the Spring Boot application.
+    Gunakan Maven Wrapper untuk membangun dan menjalankan aplikasi Spring Boot.
 
     ```bash
     ./mvnw spring-boot:run
     ```
 
-    This command will download the necessary dependencies, compile the code, and start the application. The application will be accessible at `http://localhost:8080`.
+Perintah ini akan mengunduh semua dependensi yang dibutuhkan, mengompilasi kode, dan menjalankan aplikasi.
 
-## API Testing Documentation
+## API DOCUMENTATION
 
-The following API endpoints are defined in the Postman collection.
+## Auth API `/api/auth`
 
-### User Management
+### **Register User**
 
-1.  **Create User1:**
+**POST** `/api/auth/register`
 
-    * **Endpoint:** `POST http://localhost:8080/api/users/register`
-    * **Request Body (JSON):**
+Endpoint ini digunakan untuk mendaftarkan user baru ke dalam sistem. Informasi yang dibutuhkan antara lain:
 
-        ```json
-        {
-            "email": "john.doe@example.com",
-            "username": "johndoe",
-            "fullname": "John Doe",
-            "password": "password123"
-        }
-        ```
+- fullname
+- username
+- email
+- password
+- phoneNumber (opsional)
+- avatarUrl (opsional)
 
-    * **Description:** Registers a new user.
+#### Request Body
 
-2.  **Login:**
+```json
+{
+  "email": "kautsar@gmail.com",
+  "fullname": "Kautsar Wicaksono",
+  "password": "Password123!",
+  "username": "kautsar123",
+  "phoneNumber": "085959595384",
+  "avatarUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg/800px-Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg"
+}
+```
 
-    * **Endpoint:** `POST http://localhost:8080/api/auth/login`
-    * **Request Body (JSON):**
+#### Example (cURL)
 
-        ```json
-        {
-            "email": "test@example.com",
-            "password": "test123"
-        }
-        ```
+```bash
+curl --location 'https://ewalled-api-production.up.railway.app/api/auth/register' \
+--data-raw '{
+  "email": "kautsar@gmail.com",
+  "fullname": "Kautsar Wicaksono",
+  "password": "Password123!",
+  "username": "kautsar123",
+  "phoneNumber": "085959595384",
+  "avatarUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg/800px-Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg"
+}'
+```
 
-    * **Description:** Logs in an existing user.
-    * **Note:** The provided json uses `test@example.com` which is different from the user created in the step 1. Make sure to use the correct email and password.
+#### Response (201 Created)
 
-### Wallet Management
+```plain
+Registration successful. Please log in.
+```
 
-3.  **Create Wallet for User1:**
+---
 
-    * **Endpoint:** `POST http://localhost:8080/api/users/john.doe@example.com/wallets`
-    * **Description:** Creates a wallet for the specified user.
+### **Login**
 
-4.  **Top-Up Wallet1:**
+**POST** `/api/auth/login`
 
-    * **Endpoint:** `POST http://localhost:8080/api/wallets/123000001/top-up?amount=100`
-    * **Header:** `User-Email: john.doe@example.com`
-    * **Query Parameter:** `amount=100`
-    * **Description:** Tops up the specified wallet with the given amount.
-    * **Note:** Make sure the walletID `123000001` exists.
+Endpoint untuk login user yang telah terdaftar menggunakan email dan password.
+Jika berhasil, response akan mengembalikan data user seperti id, email, fullname, username, dsb.
 
-5.  **Check Wallet1 Balance:**
+#### Request Body
 
-    * **Endpoint:** `GET` (Endpoint details are not present in provided data).
-    * **Description:** Gets the balance of Wallet1.
-    * **Note:** The endpoint is missing from the provided data. You will need to determine the correct endpoint from the application's API documentation or code.
+```json
+{
+  "email": "ex400@gmail.com",
+  "password": "Password123!"
+}
+```
 
-6.  **Check Wallet1 Transactions:**
+#### Response (200 OK)
 
-    * **Endpoint:** `GET` (Endpoint details are not present in provided data).
-    * **Description:** Retrieves the transaction history of Wallet1.
-    * **Note:** The endpoint is missing from the provided data. You will need to determine the correct endpoint from the application's API documentation or code.
+```json
+{
+  "user": {
+    "id": 52,
+    "email": "ex400@gmail.com",
+    "username": "ex400",
+    "fullname": "exempat ratus",
+    "avatarUrl": "",
+    "phoneNumber": "0818129837"
+  },
+  "wallet": {
+    "id": 27,
+    "userId": 52,
+    "accountNumber": "005403578070",
+    "balance": 1125000,
+    "createdAt": "2025-04-13T04:08:24.556012",
+    "updatedAt": "2025-04-14T08:46:05.760369"
+  }
+}
+```
 
-7.  **Transfer from Wallet1 to Wallet2:**
+---
 
-    * **Endpoint:** `GET` (Endpoint details are not present in provided data).
-    * **Description:** Transfers funds from Wallet1 to Wallet2.
-    * **Note:** The endpoint is missing from the provided data. You will need to determine the correct endpoint from the application's API documentation or code.
+## Transactions API `/api/transactions`
 
-8.  **Check Wallet2 Transactions:**
+Endpoint-Endpoint dalam folder ini digunakan untuk mengelola transaksi keuangan pengguna dalam aplikasi eWalled.
+Fitur Utama:
 
-    * **Endpoint:** `GET` (Endpoint details are not present in provided data).
-    * **Description:** Retrieves the transaction history of Wallet2.
-    * **Note:** The endpoint is missing from the provided data. You will need to determine the correct endpoint from the application's API documentation or code.
+- Melihat semua transaksi berdasarkan wallet ID
+- Melakukan transaksi baru, seperti:
+  - Top Up
+  - Transfer ke pengguna lain
+- Ekspor data transaksi ke PDF
 
-9.  **Check Wallet2 Balance:**
+### **Get All Transactions**
 
-    * **Endpoint:** `GET http://localhost:8080/api/wallets/2`
-    * **Header:** `Content-Type: application/json`
-    * **Description:** Gets the balance of Wallet2.
+**GET** `/api/transactions?walletId={walletId}`
 
-10. **Logout:**
+Mengambil semua transaksi milik user berdasarkan walletId.
 
-    * **Endpoint:** `GET http://localhost:8080/api/wallets/2`
-    * **Header:** `Content-Type: application/json`
-    * **Description:** This endpoint is using the same endpoint of "Check Wallet2 Balance" which is probably a mistake. The real logout endpoint is not provided in the data. You will need to determine the correct logout endpoint from the application's API documentation or code.
+#### Query Params
 
-    **Note:** The logout endpoint in the provided data is incorrect. It shares the same endpoint as "Check Wallet2 Balance." The real logout endpoint needs to be determined from the application's API documentation or code.
+walletId = 27
+
+#### Example (cURL)
+
+```bash
+curl --location 'https://ewalled-api-production.up.railway.app/api/transactions?walletId=27' \
+--data ''
+```
+
+#### Response (200 OK)
+
+```json
+[
+  {
+    "id": 47,
+    "walletId": 27,
+    "transactionType": "TOP_UP",
+    "amount": 1000000,
+    "recipientWalletId": null,
+    "transactionDate": "2025-04-13T04:09:06.309758",
+    "description": "Initial deposit",
+    "fromTo": "-"
+  },
+  {
+    "id": 48,
+    "walletId": 27,
+    "transactionType": "TRANSFER",
+    "amount": 500000,
+    "recipientWalletId": 25,
+    "transactionDate": "2025-04-13T04:10:03.97996",
+    "description": "Split bill",
+    "fromTo": "To: extiga ratusdua"
+  }
+]
+```
+
+---
+
+### **Top Up Wallet**
+
+**POST** `/api/transactions`
+
+Melakukan pengisian saldo wallet user
+
+#### Request Body
+
+```json
+{
+  "walletId": 23,
+  "transactionType": "TOP_UP",
+  "amount": 800000,
+  "description": "Cicil emas"
+}
+```
+
+#### Response (201 CREATED)
+
+```json
+{
+  "id": 101,
+  "walletId": 23,
+  "transactionType": "TOP_UP",
+  "amount": 800000,
+  "recipientWalletId": null,
+  "transactionDate": "2025-04-14T10:09:07.747154593",
+  "description": "Cicil emas",
+  "fromTo": null
+}
+```
+
+---
+
+### **Transfer to Recipient Account Number**
+
+**POST** `/api/transactions`
+
+Digunakan untuk transfer ke akun wallet lain
+
+#### Request Body
+
+```json
+{
+  "walletId": 23,
+  "transactionType": "TRANSFER",
+  "amount": 5000,
+  "recipientAccountNumber": "046748771955",
+  "description": "Split bill"
+}
+```
+
+#### Response (201 CREATED)
+
+```json
+{
+  "id": 99,
+  "walletId": 23,
+  "transactionType": "TRANSFER",
+  "amount": 5000,
+  "recipientWalletId": 25,
+  "transactionDate": "2025-04-14T10:06:59.737211832",
+  "description": "Split bill",
+  "fromTo": null
+}
+```
+
+---
+
+### **Export Transaction History to PDF**
+
+**GET** `/api/transactions/export/pdf?walletId={walletId}`
+
+Mengekspor seluruh riwayat transaksi user ke file PDF. File ini dapat langsung diunduh oleh user melalui UI aplikasi.
+
+---
+
+## Financial Overview `/api/summary/{walletId}`
+
+Endpoint untuk melihat ringkasan keuangan berdasarkan data transaksi user dalam berbagai periode waktu.
+
+Fitur Utama:
+
+- Menghitung dan menampilkan Total Pemasukan (Income)Total Pengeluaran (Outcome), dan Saldo Bersih (Net Balance).
+- Menyediakan data dalam format yang siap digunakan untuk visualisasi grafik pada fitur Financial Overview.
+
+**GET** `/api/summary/{walletId}`
+
+#### Example Response
+
+Mengambil data ringkasan transaksi berdasarkan walletId.
+Data Ringkasan yang Disediakan:
+Weekly Summary (4 minggu terakhir)
+Monthly Summary (4 bulan terakhir)
+Quarterly Summary (4 kuartal terakhir)
+
+```json
+{
+  "weekly": {
+    "totalIncome": 4325996,
+    "totalOutcome": 90000,
+    "netBalance": 4235996,
+    "data": [...]
+  },
+  "monthly": { ... },
+  "quarterly": { ... }
+}
+```
+
+---
+
+## Wallets API `/api/wallets`
+
+Endpoint yang berkaitan dengan wallet user dalam aplikasi E-Walled. Wallet digunakan untuk menyimpan saldo serta mengelola transaksi keuangan user.
+
+Fitur Utama:
+
+- Menyediakan detail informasi dompet user berdasarkan userId.
+- Melakukan pengecekan apakah nomor rekening atau wallet tertentu valid saat melakukan transfer.
+
+### **Check Wallet by Account Number**
+
+**GET** `/api/wallets/check?accountNumber={accountNumber}`
+
+Digunakan untuk memvalidasi apakah accountNumber tujuan transfer valid dan tersedia.
+
+#### Query Params
+
+accountNumber = 060523765176
+
+#### Example (cURL)
+
+```bash
+curl --location 'https://ewalled-api-production.up.railway.app/api/wallets/check?accountNumber=060523765176'
+```
+
+#### Response
+
+```json
+{
+  "accountNumber": "060523765176",
+  "fullName": "extiga ratus"
+}
+```
+
+---
+
+### **Get Wallet by User ID**
+
+**GET** `/api/wallets/user/{userId}`
+
+Mengambil data wallet berdasarkan userId.
+
+#### Example Response
+
+```json
+{
+  "id": 25,
+  "userId": 50,
+  "accountNumber": "046748771955",
+  "balance": 4235332,
+  "createdAt": "...",
+  "updatedAt": "..."
+}
+```
+
+---

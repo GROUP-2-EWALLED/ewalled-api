@@ -1,0 +1,1055 @@
+{
+	"info": {
+		"_postman_id": "f705fc30-d07d-4074-8b91-8fde5c522de5",
+		"name": "eWalled",
+		"description": "Aplikasi eWalled dirancang untuk membantu pengguna dalam memantau dan mencatat arus kas pribadi—baik pemasukan maupun pengeluaran—secara **real-time**. Teknologi yang digunakan dalam pengembangan aplikasi meliputi:\n\n- **React.js** untuk platform web\n    \n- **React Native** untuk aplikasi mobile\n    \n- **Java Spring Boot** sebagai backend API\n    \n- **PostgreSQL** untuk manajemen basis data\n    \n\n---\n\n### Fitur Utama\n\n#### Pencatatan Keuangan\n\neWalled menyediakan fitur pencatatan transaksi yang memungkinkan user untuk:\n\n- Melihat **riwayat transaksi** dengan filter berdasarkan tanggal dan kategori\n    \n- Melihat **grafik** serta **ringkasan keuangan** (mingguan, bulanan, kuartalan)\n    \n- Membandingkan **total pemasukan dan pengeluaran**\n    \n\n#### Integrasi eWalled\n\nIntegrasi transaksi digital:\n\n- **Sinkronisasi saldo** dengan e-wallet yang terhubung\n    \n- **Impor transaksi otomatis**\n    \n- **Transfer saldo** langsung melalui aplikasi\n    \n\n#### Keamanan dan Privasi\n\nKeamanan data pengguna adalah prioritas utama, dengan penerapan:\n\n- **Hashing password** menggunakan Bcrypt\n    \n- **Enkripsi data sensitif**",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17664474"
+	},
+	"item": [
+		{
+			"name": "Auth API (/api/auth)",
+			"item": [
+				{
+					"name": "register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"ex1@gmail.com\",\r\n    \"fullname\": \"exatu gimail\",\r\n    \"password\": \"passwordRandom123\",\r\n    \"username\": \"ex1\",\r\n    \"phoneNumber\": \"0851234567\",\r\n    \"avatarUrl\": \"avatardummy.url\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://ewalled-api-production.up.railway.app/api/auth/register",
+							"protocol": "https",
+							"host": [
+								"ewalled-api-production",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "### POST `/api/auth/register`\n\nEndpoint ini digunakan untuk **mendaftarkan user baru** ke dalam sistem. Informasi yang dibutuhkan antara lain:\n\n- `fullname`\n    \n- `username`\n    \n- `email`\n    \n- `password`\n    \n- `phoneNumber` (opsional)\n    \n- `avatarUrl` (opsional)"
+					},
+					"response": [
+						{
+							"name": "register",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"kautsar@gmail.com\",\r\n  \"fullname\": \"Kautsar Wicaksono\",\r\n  \"password\": \"Password123!\",\r\n  \"username\": \"kautsar123\",\r\n  \"phoneNumber\": \"085959595384\",\r\n  \"avatarUrl\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg/800px-Orange_tabby_cat_sitting_on_fallen_leaves-Hisashi-01A.jpg\"    \r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/register",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Length",
+									"value": "39"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/plain;charset=UTF-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:18:14 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "LHXLFvskTrGScsYn4dftfA_2660894097"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								}
+							],
+							"cookie": [],
+							"body": "Registration successful. Please log in."
+						}
+					]
+				},
+				{
+					"name": "login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"email\": \"ex400@gmail.com\",\r\n  \"password\": \"Password123!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### POST `/api/auth/login`\n\nEndpoint untuk **login user** yang telah terdaftar menggunakan `email` dan `password`.\n\nJika berhasil, response akan mengembalikan data user seperti `id`, `email`, `fullname`, `username`, dsb."
+					},
+					"response": [
+						{
+							"name": "login",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"kautsar@gmail.com\",\r\n  \"password\": \"Password123!\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/auth/login",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:10:28 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "gnAXPLV3TTetWSKmkZ0ktg_2660894097"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"user\": {\n        \"id\": 52,\n        \"email\": \"ex400@gmail.com\",\n        \"username\": \"ex400\",\n        \"fullname\": \"exempat ratus\",\n        \"avatarUrl\": \"\",\n        \"phoneNumber\": \"0818129837\"\n    },\n    \"wallet\": {\n        \"id\": 27,\n        \"userId\": 52,\n        \"accountNumber\": \"005403578070\",\n        \"balance\": 1125000,\n        \"createdAt\": \"2025-04-13T04:08:24.556012\",\n        \"updatedAt\": \"2025-04-14T08:46:05.760369\"\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "## Auth API\n\nFolder ini berisi endpoint yang digunakan untuk **mengelola proses autentikasi** user di aplikasi eWalled.\n\n### Fitur Utama:\n\n- **Registrasi User Baru**\n    \n- **Login User yang Sudah Terdaftar**"
+		},
+		{
+			"name": "Transactions (/api/transactions)",
+			"item": [
+				{
+					"name": "get all transactions from walletId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions?walletId=27",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							],
+							"query": [
+								{
+									"key": "walletId",
+									"value": "27"
+								}
+							]
+						},
+						"description": "### GET `/api/transactions?walletId=...`\n\nMengambil semua transaksi milik user berdasarkan `walletId`."
+					},
+					"response": [
+						{
+							"name": "Get All Transactions from walletId",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions?walletId=27",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"transactions"
+									],
+									"query": [
+										{
+											"key": "walletId",
+											"value": "27"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:10:02 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "IRhumqtdR6qtM5-aWviwgw_2660894097"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 47,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 1000000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T04:09:06.309758\",\n        \"description\": \"Initial deposit\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 48,\n        \"walletId\": 27,\n        \"transactionType\": \"TRANSFER\",\n        \"amount\": 500000,\n        \"recipientWalletId\": 25,\n        \"transactionDate\": \"2025-04-13T04:10:03.97996\",\n        \"description\": \"Split bill\",\n        \"fromTo\": \"To: extiga ratusdua\"\n    },\n    {\n        \"id\": 49,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 50000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T04:15:59.127492\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 50,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 5000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T04:33:29.097444\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 51,\n        \"walletId\": 27,\n        \"transactionType\": \"TRANSFER\",\n        \"amount\": 5000,\n        \"recipientWalletId\": 25,\n        \"transactionDate\": \"2025-04-13T04:34:23.138433\",\n        \"description\": \"\",\n        \"fromTo\": \"To: extiga ratusdua\"\n    },\n    {\n        \"id\": 53,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 5000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T07:23:45.556115\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 54,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 10000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T07:28:23.187223\",\n        \"description\": \"Top up cash\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 55,\n        \"walletId\": 27,\n        \"transactionType\": \"TRANSFER\",\n        \"amount\": 5000,\n        \"recipientWalletId\": 25,\n        \"transactionDate\": \"2025-04-13T07:54:18.419794\",\n        \"description\": \"\",\n        \"fromTo\": \"To: extiga ratusdua\"\n    },\n    {\n        \"id\": 56,\n        \"walletId\": 27,\n        \"transactionType\": \"TRANSFER\",\n        \"amount\": 5000,\n        \"recipientWalletId\": 25,\n        \"transactionDate\": \"2025-04-13T07:57:08.64134\",\n        \"description\": \"\",\n        \"fromTo\": \"To: extiga ratusdua\"\n    },\n    {\n        \"id\": 57,\n        \"walletId\": 27,\n        \"transactionType\": \"TRANSFER\",\n        \"amount\": 5000,\n        \"recipientWalletId\": 25,\n        \"transactionDate\": \"2025-04-13T08:01:04.896234\",\n        \"description\": \"Split bill\",\n        \"fromTo\": \"To: extiga ratusdua\"\n    },\n    {\n        \"id\": 58,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 50000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T08:01:26.111398\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 59,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 5000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T08:29:26.537659\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 61,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 5000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T10:46:36.341656\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 62,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 100000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T10:58:48.607791\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 63,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 5000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T11:07:49.218157\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 64,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 100000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T11:08:25.447103\",\n        \"description\": \"Test\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 80,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 50000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-13T13:51:25.968294\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 95,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 60000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-14T06:41:46.866088\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    },\n    {\n        \"id\": 96,\n        \"walletId\": 27,\n        \"transactionType\": \"TOP_UP\",\n        \"amount\": 200000,\n        \"recipientWalletId\": null,\n        \"transactionDate\": \"2025-04-14T08:46:05.30238\",\n        \"description\": \"\",\n        \"fromTo\": \"-\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "topup wallet",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"walletId\":23,\r\n    \"transactionType\": \"TOP_UP\",\r\n    \"amount\": 800000,\r\n    \"description\": \"Cicil emas\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						},
+						"description": "### POST `/api/transactions`\n\nDigunakan untuk membuat transaksi baru. Jenis transaksi (`transactionType`) dapat berupa:\n\n- `\"TOP_UP\"` — untuk pengisian saldo wallet"
+					},
+					"response": [
+						{
+							"name": "Topup wallet",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"walletId\":23,\r\n    \"transactionType\": \"TOP_UP\",\r\n    \"amount\": 800000,\r\n    \"description\": \"Cicil emas\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"transactions"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:09:09 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "Kb7knW7sRC2ting1p8_juw_2660894097"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 101,\n    \"walletId\": 23,\n    \"transactionType\": \"TOP_UP\",\n    \"amount\": 800000,\n    \"recipientWalletId\": null,\n    \"transactionDate\": \"2025-04-14T10:09:07.747154593\",\n    \"description\": \"Cicil emas\",\n    \"fromTo\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "transfer to recipient account number",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"walletId\": 23,\r\n    \"transactionType\": \"TRANSFER\",\r\n    \"amount\": 5000,\r\n    \"recipientAccountNumber\": \"046748771955\",\r\n    \"description\": \"Split bill\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/transactions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						},
+						"description": "### POST `/api/transactions`\n\nDigunakan untuk membuat transaksi baru. Jenis transaksi (`transactionType`) dapat berupa:\n\n- `\"TRANSFER\"` — untuk transfer ke wallet lain"
+					},
+					"response": [
+						{
+							"name": "Transfer",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"walletId\": 23,\r\n    \"transactionType\": \"TRANSFER\",\r\n    \"amount\": 5000,\r\n    \"recipientAccountNumber\": \"046748771955\",\r\n    \"description\": \"Split bill\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/transactions",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"transactions"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:07:02 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "HaASQN3KSEOhj5-Rv_WGcQ_2678442181"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 99,\n    \"walletId\": 23,\n    \"transactionType\": \"TRANSFER\",\n    \"amount\": 5000,\n    \"recipientWalletId\": 25,\n    \"transactionDate\": \"2025-04-14T10:06:59.737211832\",\n    \"description\": \"Split bill\",\n    \"fromTo\": null\n}"
+						}
+					]
+				},
+				{
+					"name": "export transaction history data to PDF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/transactions/export/pdf?walletId=27",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"export",
+								"pdf"
+							],
+							"query": [
+								{
+									"key": "walletId",
+									"value": "27"
+								}
+							]
+						},
+						"description": "### GET `/api/transactions/export/pdf?walletId=...`\n\nMengekspor seluruh riwayat transaksi user ke file PDF. File ini dapat langsung diunduh oleh user melalui UI aplikasi."
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoint-Endpoint dalam folder ini digunakan untuk **mengelola transaksi keuangan pengguna** dalam aplikasi eWalled.\n\n### Fitur Utama:\n\n- **Melihat semua transaksi** berdasarkan wallet ID\n    \n- **Melakukan transaksi baru**, seperti:\n    \n    - Top Up\n        \n    - Transfer ke pengguna lain\n        \n- **Ekspor data transaksi ke PDF**"
+		},
+		{
+			"name": "Financial Overview (/api/summary)",
+			"item": [
+				{
+					"name": "get financial overview",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/summary/25",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"summary",
+								"25"
+							]
+						},
+						"description": "### GET `/api/summary/{walletId}`\n\nMengambil data ringkasan transaksi berdasarkan `walletId`.\n\n### Data Ringkasan yang Disediakan:\n\n- **Weekly Summary** (4 minggu terakhir)\n    \n- **Monthly Summary** (4 bulan terakhir)\n    \n- **Quarterly Summary** (4 kuartal terakhir)"
+					},
+					"response": [
+						{
+							"name": "Financial Overview",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/summary/25",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"summary",
+										"25"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:06:18 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "AFKVXyGERgS-OcUecCqhcQ_2678442181"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"weekly\": {\n        \"totalIncome\": 4325996,\n        \"totalOutcome\": 90000,\n        \"netBalance\": 4235996,\n        \"data\": [\n            {\n                \"period\": \"Week 16 - 2025\",\n                \"income\": 900000,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"Week 15 - 2025\",\n                \"income\": 3425996,\n                \"outcome\": 90000\n            },\n            {\n                \"period\": \"Week 14 - 2025\",\n                \"income\": 0,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"Week 13 - 2025\",\n                \"income\": 0,\n                \"outcome\": 0\n            }\n        ]\n    },\n    \"monthly\": {\n        \"totalIncome\": 4325996,\n        \"totalOutcome\": 90000,\n        \"netBalance\": 4235996,\n        \"data\": [\n            {\n                \"period\": \"April\",\n                \"income\": 4325996,\n                \"outcome\": 90000\n            },\n            {\n                \"period\": \"March\",\n                \"income\": 0,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"February\",\n                \"income\": 0,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"January\",\n                \"income\": 0,\n                \"outcome\": 0\n            }\n        ]\n    },\n    \"quarterly\": {\n        \"totalIncome\": 4325996,\n        \"totalOutcome\": 90000,\n        \"netBalance\": 4235996,\n        \"data\": [\n            {\n                \"period\": \"Q2 - 2025\",\n                \"income\": 4325996,\n                \"outcome\": 90000\n            },\n            {\n                \"period\": \"Q1 - 2025\",\n                \"income\": 0,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"Q4 - 2024\",\n                \"income\": 0,\n                \"outcome\": 0\n            },\n            {\n                \"period\": \"Q3 - 2024\",\n                \"income\": 0,\n                \"outcome\": 0\n            }\n        ]\n    }\n}"
+						}
+					]
+				}
+			],
+			"description": "Folder ini berisi endpoint untuk **melihat ringkasan keuangan** berdasarkan data transaksi user dalam berbagai periode waktu.\n\n### Fitur Utama:\n\n- Menghitung dan menampilkan **Total Pemasukan (Income)**, **Total Pengeluaran (Outcome)**, dan **Saldo Bersih (Net Balance)**.\n    \n- Menyediakan data dalam format yang siap digunakan untuk **visualisasi grafik** pada fitur _Financial Overview_."
+		},
+		{
+			"name": "Wallets (/api/wallets)",
+			"item": [
+				{
+					"name": "check wallet account number",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/wallets/check?accountNumber=060523765176",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"check"
+							],
+							"query": [
+								{
+									"key": "accountNumber",
+									"value": "060523765176"
+								}
+							]
+						},
+						"description": "### GET `/api/wallets/check?accountNumber={accountNumber}`\n\nDigunakan untuk memvalidasi apakah `accountNumber` tujuan transfer **valid dan tersedia**."
+					},
+					"response": [
+						{
+							"name": "check wallet account number",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/check?accountNumber=060523765176",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"check"
+									],
+									"query": [
+										{
+											"key": "accountNumber",
+											"value": "060523765176"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:08:05 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "dZNWsaVORcaeHEjpxB2cjg_2678442181"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accountNumber\": \"060523765176\",\n    \"fullName\": \"extiga ratus\"\n}"
+						}
+					]
+				},
+				{
+					"name": "get wallet by userId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/wallets/50",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"50"
+							]
+						},
+						"description": "### GET `/api/wallets/user/{userId}`\n\nMengambil data wallet berdasarkan `userId`. Biasanya dipanggil setelah login untuk mendapatkan detail `walletId`, `accountNumber`, dan `balance`."
+					},
+					"response": [
+						{
+							"name": "get wallet by user Id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/50",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"50"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Cache-Control",
+									"value": "no-cache, no-store, max-age=0, must-revalidate"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 14 Apr 2025 10:05:43 GMT"
+								},
+								{
+									"key": "Expires",
+									"value": "0"
+								},
+								{
+									"key": "Pragma",
+									"value": "no-cache"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "Vary",
+									"value": "Origin"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Method"
+								},
+								{
+									"key": "Vary",
+									"value": "Access-Control-Request-Headers"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "SAMEORIGIN"
+								},
+								{
+									"key": "X-Railway-Edge",
+									"value": "railway/us-west2"
+								},
+								{
+									"key": "X-Railway-Request-Id",
+									"value": "kF0P5JUBSfKzjYiIbri67A_2678442181"
+								},
+								{
+									"key": "X-Xss-Protection",
+									"value": "0"
+								},
+								{
+									"key": "Transfer-Encoding",
+									"value": "chunked"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 25,\n    \"userId\": 50,\n    \"accountNumber\": \"046748771955\",\n    \"balance\": 4235332,\n    \"createdAt\": \"2025-04-12T13:10:47.260439\",\n    \"updatedAt\": \"2025-04-14T09:48:29.344041\"\n}"
+						}
+					]
+				}
+			],
+			"description": "## Wallets API\n\nFolder ini berisi endpoint yang berkaitan dengan **wallet** user dalam aplikasi E-Walled. Wallet digunakan untuk menyimpan saldo serta mengelola transaksi keuangan user.\n\n### Fitur Utama:\n\n- Menyediakan detail informasi dompet user berdasarkan `userId`.\n    \n- Melakukan pengecekan apakah nomor rekening atau wallet tertentu valid saat melakukan transfer."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "id",
+			"value": "1"
+		},
+		{
+			"key": "base_url",
+			"value": "https://ewalled-api-production.up.railway.app"
+		}
+	]
+}
